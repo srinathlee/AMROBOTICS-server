@@ -49,7 +49,7 @@ exports.createOrder=asyncHandler(async(req,res,next)=>{
         user:userId
     })
 
-    res.status(200).json({success:true,message:"order initiated",paymentDetails:pay_res})
+    res.status(200).json({success:true,message:"order initiated",paymentDetails:pay_res,order})
   })
 
 //   payment conformation

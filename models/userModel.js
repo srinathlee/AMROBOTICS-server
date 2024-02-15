@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const crypto=require("crypto")
+const crypto=require("crypto");
+const { type } = require("os");
 
 const userSchema = new mongoose.Schema({
   name:{
@@ -44,6 +45,28 @@ const userSchema = new mongoose.Schema({
       // required: true,
     },
   },
+  wishList:[
+    {
+      product:{
+        type:mongoose.Schema.ObjectId,
+        ref:"Product"
+      }
+    }
+  ],
+
+  cart: [
+    {
+      product: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Product",
+      },
+      quantity: {
+        type: Number,
+        default: 1,
+      },
+    },
+  ],
+  
   role:{
     type: String,
     default:"user",

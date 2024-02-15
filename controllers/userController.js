@@ -5,7 +5,8 @@ const sendJwt = require("../utils/jwttokenSend");
 const sendEmail=require("../utils/sendEmail")
 const crypto=require("crypto")
 const cloudinary=require("../utils/cloudinary")
-const fs=require("fs")
+const fs=require("fs");
+const { whitelist } = require("validator");
 
 
 // user register
@@ -187,4 +188,65 @@ exports.deleteUser=asyncHandler(async(req,res,next)=>{
   const message=await User.findByIdAndDelete(id);
 
   res.status(200).json({success:true,message:"user deleted successfully"})
+})
+
+// whishlist products________________________________________________________________________
+exports.wishListProduct=asyncHandler(async(req,res,next)=>{
+  const productId=req.params.id
+  const userId=req.user.id
+  let user=await User.findById(userId)
+  const wishList=user.wishList 
+  const itemExist=wishList.find((each)=>each.product==productId)
+  if(itemExist){
+    return next(new errorHandler(`Product with ${productId} already wishlisted`),400) 
+  }
+  wishList.push({"product":productId})
+  user.wishList=wishList
+  await user.save({validateBeforeSave:false})
+  res.status(200).json({success:true,message:"Product wishlisted successfully"})
+})
+
+// remove product form wishlist______________________________________________________________
+exports.RemovewishListProduct=asyncHandler(async(req,res,next)=>{
+  const productId=req.params.id
+  const userId=req.user.id
+  let user=await User.findById(userId)
+  const wishList=user.wishList 
+  const newWishlist=wishList.filter((each)=>each.product!=productId)
+  user.wishList=newWishlist 
+  await user.save({validateBeforeSave:false})
+    res.status(200).json({success:true,message:"Product remover from Wishlist successfully"})
+})
+
+// add item to cart increase quantity if already present_____________________________________
+exports.AddCartItem=asyncHandler(async(req,res,next)=>{
+
+  const userId=req.user.id
+  const productId=req.params.id 
+  const user=await User.findById(userId)
+  let cartDetails={
+    "product":productId,
+    quantity:1
+  }
+  const isCarted=user.cart.findIndex((each)=>each.product==productId)
+  console.log(isCarted)
+  if(isCarted!=-1){
+  user.cart[isCarted].quantity+=1
+  }
+  else{
+  user.cart.push(cartDetails) 
+  }
+  await user.save({validateBeforeSave:false})
+ res.json(user.cart)
+})
+// remove item from cart _____________________________________
+exports.RemoveCartItem=asyncHandler(async(req,res,next)=>{
+  const userId=req.user.id
+  const productId=req.params.id
+  const user=await User.findById(userId)
+  const newCart=user.cart.filter((each)=>each.product!=productId)
+  user.cart=newCart 
+  await user.save({validateBeforeSave:false})
+ res.json(newCart)
+
 })
