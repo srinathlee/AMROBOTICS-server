@@ -11,13 +11,16 @@ const cors=require("cors")
 
 
 // cors
-app.use(cors())
+// app.use(cors())
+app.use(cors({credentials:true, origin:true}));
 // cookie parser
 app.use(cookieParser())
 // morgan logger [to show the request details in console]
 app.use(logger("tiny"))
 // body parser 
 app.use(express.json())
+// // url encoded
+// express.urlencoded({extended: false})
 // product route
 app.use("/api/v1",product)
 // user route

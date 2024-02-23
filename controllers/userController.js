@@ -39,14 +39,13 @@ exports.register = asyncHandler(async (req, res, next) => {
 
 //user login
 exports.login = asyncHandler(async (req,res,next) => {
+
   const { email, password } = req.body;
-  console.log(email,password)
 
   if (email == "" || password == "") {
     return next(new errorHandler("Enter Email and Password", 403));
   }
   const user = await User.findOne({ email }).select("+password");
-  console.log(user)
   if (!user) {
     return next(new errorHandler("Invalid Email or Password", 403));
   }
@@ -248,5 +247,6 @@ exports.RemoveCartItem=asyncHandler(async(req,res,next)=>{
   user.cart=newCart 
   await user.save({validateBeforeSave:false})
  res.json(newCart)
-
 })
+
+// increment products in cart_________

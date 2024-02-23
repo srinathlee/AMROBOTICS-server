@@ -5,7 +5,8 @@ const asyncHandler=require("../middleware/asynchandler")
 
 
 exports.isAuthorized=asyncHandler(async(req,res,next)=>{
-   const {jwtToken}=req.cookies
+//    const {jwtToken}=req.cookies
+   const jwtToken=req.headers['authorization'].split(" ")[1]
    if(!jwtToken){
     return next(new errorHandler("login to access this resource",401))
    }
