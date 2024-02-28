@@ -1,12 +1,15 @@
 const asyncHandler = require("../middleware/asynchandler");
 const errorHandler = require("../utils/errorHandler");
 const User = require("../models/userModel");
+const Product=require("../models/productModels")
 const sendJwt = require("../utils/jwttokenSend");
 const sendEmail=require("../utils/sendEmail")
 const crypto=require("crypto")
 const cloudinary=require("../utils/cloudinary")
 const fs=require("fs");
 const { whitelist } = require("validator");
+const { execPath } = require("process");
+
 
 
 // user register
@@ -196,39 +199,63 @@ exports.wishListProduct=asyncHandler(async(req,res,next)=>{
   let user=await User.findById(userId)
   const wishList=user.wishList 
   const itemExist=wishList.find((each)=>each.product==productId)
+
   if(itemExist){
-    return next(new errorHandler(`Product with ${productId} already wishlisted`),400) 
+  const newWishlist=wishList.filter((each)=>each.product!=productId)
+  user.wishList=newWishlist 
+  await user.save({validateBeforeSave:false})
+  return res.status(200).json({success:true,message:"Product removed from Wishlist successfully"})
+    // return next(new errorHandler(`Product with ${productId} already wishlisted`),400) 
   }
   wishList.push({"product":productId})
+  console.log(wishList)
   user.wishList=wishList
   await user.save({validateBeforeSave:false})
-  res.status(200).json({success:true,message:"Product wishlisted successfully"})
+  return res.status(200).json({success:true,message:"Product wishlisted successfully"})
 })
 
 // remove product form wishlist______________________________________________________________
 exports.RemovewishListProduct=asyncHandler(async(req,res,next)=>{
   const productId=req.params.id
+  console.log(productId)
   const userId=req.user.id
   let user=await User.findById(userId)
   const wishList=user.wishList 
   const newWishlist=wishList.filter((each)=>each.product!=productId)
   user.wishList=newWishlist 
   await user.save({validateBeforeSave:false})
-    res.status(200).json({success:true,message:"Product remover from Wishlist successfully"})
+  res.status(200).json({success:true,message:"Product remover from Wishlist successfully"})
+})
+
+// get all Wishlist details__________________
+exports.getWishlist=asyncHandler(async(req,res,next)=>{
+  const userId=req.user.id
+  const user=await User.findOne({_id:userId},{wishList:1,_id:0});
+  const wishlistData = await Promise.all(
+    user.wishList.map(async(eachItem)=>{
+      const product = await Product.findOne({_id:eachItem.product},{name:1,images:1,price:1,stock:1})
+      const item = {name:product.name,images:product.images,price:product.price,id:product.id,stock:product.stock}
+      return item
+    })
+  )
+
+res.status(200).json({message:"wishlistData",success:true,data:wishlistData})
 })
 
 // add item to cart increase quantity if already present_____________________________________
 exports.AddCartItem=asyncHandler(async(req,res,next)=>{
-
   const userId=req.user.id
   const productId=req.params.id 
+  const quantity=req.body.quantity
   const user=await User.findById(userId)
+  const product=await Product.findById(productId)
+  console.log(quantity,"search product")
   let cartDetails={
     "product":productId,
-    quantity:1
+    quantity:quantity
   }
   const isCarted=user.cart.findIndex((each)=>each.product==productId)
-  console.log(isCarted)
+  console.log(isCarted,"iscarted")
   if(isCarted!=-1){
   user.cart[isCarted].quantity+=1
   }
@@ -236,17 +263,53 @@ exports.AddCartItem=asyncHandler(async(req,res,next)=>{
   user.cart.push(cartDetails) 
   }
   await user.save({validateBeforeSave:false})
- res.json(user.cart)
+ res.json({success:true,message:"product added to cart successfully"})
 })
 // remove item from cart _____________________________________
 exports.RemoveCartItem=asyncHandler(async(req,res,next)=>{
   const userId=req.user.id
-  const productId=req.params.id
+  const id=req.body 
   const user=await User.findById(userId)
-  const newCart=user.cart.filter((each)=>each.product!=productId)
-  user.cart=newCart 
+  const newCart=id.map((item)=>user.cart.filter((each)=>each.product!=item))
+  user.cart=newCart[0] 
   await user.save({validateBeforeSave:false})
- res.json(newCart)
+ res.json("newCart")
 })
 
-// increment products in cart_________
+// increment products in cart____________________________________
+// exports.AddCartItem=asyncHandler(async(req,res,next)=>{
+//   const userId=req.user.id
+//   const {quantity}=req.body||1
+//   console.log(quantity)
+//   const productId=req.params.id 
+//   const user=await User.findById(userId)
+//   let cartDetails={
+//     "product":productId,
+//     quantity:quantity
+//   }
+//   const isCarted=user.cart.findIndex((each)=>each.product==productId)
+//   if(isCarted!=-1){
+//   user.cart[isCarted].quantity+=quantity
+//   }
+//   else{
+//   user.cart.push(cartDetails) 
+//   }
+//   await user.save({validateBeforeSave:false})
+//  res.json({success:true,message:"product added to cart successfully"})
+// })
+
+// get all cart details__________________
+exports.getCartDetails=asyncHandler(async(req,res,next)=>{
+  const userId=req.user.id
+  const user=await User.findOne({_id:userId},{cart:1});
+  const cartData = await Promise.all(
+    user.cart.map(async(cartItem)=>{
+      const product = await Product.findOne({_id:cartItem.product},{name:1,images:1,price:1})
+      product.quantity=cartItem.quantity
+      const item = {name:product.name,images:product.images,price:product.price,quantity:cartItem.quantity,id:product.id}
+      return item
+    })
+  )
+
+res.status(200).json({success:true,data:cartData})
+})
