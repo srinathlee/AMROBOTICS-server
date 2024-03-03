@@ -14,7 +14,8 @@ const { execPath } = require("process");
 
 // user register
 exports.register = asyncHandler(async (req, res, next) => {  
-  const { name, email, password, number} = req.body;  
+  const { name, email, password, number,address} = req.body;  
+  console.log(address)
   // checking if file present in request
   // if(req.file==undefined){
   //   return next(new errorHandler("provide avatar", 401));
@@ -34,7 +35,8 @@ exports.register = asyncHandler(async (req, res, next) => {
     email,
     password,
     avatar,
-    number
+    number,
+    address
   });
   //sending response
   sendJwt(user, 201,"registerd successfully", res);  
@@ -69,8 +71,10 @@ exports.forgotPassword=asyncHandler(async(req,res,next)=>{
   if(!user){
     next(new errorHandler("user dosent exit",401))
   }
+ 
   const token=user.resetToken()
-  const resetUrl=`http://localhost:5080/api/v1/resetpassword/${token}`
+  // const resetUrl=`http://localhost:5080/api/v1/resetpassword/${token}`
+  const resetUrl=`http://127.0.0.1:5173/resetpassword/${token}`
   const message=`your reset url is ${resetUrl} leave it if you didnt requested for it`
   await user.save({validateBeforeSave:false})
   try{
@@ -145,10 +149,12 @@ exports.userDetails=asyncHandler(async(req,res,next)=>{
 
 // update user details
 exports.profileUpdate=asyncHandler(async(req,res,next)=>{
+  console.log(req.body)
   const userNewDetails={
     name:req.body.name,
     email:req.body.email,
     number:req.body.number
+
   }
   const user=await User.findByIdAndUpdate(req.user.id,userNewDetails,{new:true,runValidators:true,useFindAndModify:false})
   res.status(201).json({success:true,user})
@@ -247,6 +253,7 @@ exports.AddCartItem=asyncHandler(async(req,res,next)=>{
   const userId=req.user.id
   const productId=req.params.id 
   const quantity=req.body.quantity
+  console.log("quantity")
   const user=await User.findById(userId)
   const product=await Product.findById(productId)
   console.log(quantity,"search product")
