@@ -2,14 +2,20 @@ class apiFeatures {
   constructor(query, queryString) {
     this.query = query;
     this.queryString = queryString;
+    console.log(queryString,"this is in api features")
   }
 
   search() {
-    const keyword = this.queryString.keyword
-      ? { name: { $regex: this.queryString.keyword, $options: "i" } }
-      : {};
+    let keyword = this.queryString.keyword
+    console.log(keyword,"this is keyword")
+    if(keyword){
+    keyword= { name: { $regex: this.queryString.keyword, $options: "i" } }
+      console.log(keyword)
     this.query = this.query.find(keyword);
-    return this;
+  }
+  return this
+
+
   }
 
   filter() {
@@ -23,6 +29,7 @@ class apiFeatures {
       /\b(gt|gte|lt|lte)\b/g,
       (key) => `$${key}`);
     queryString = JSON.parse(queryString);
+    console.log(queryString)
     this.query = this.query.find(queryString);
     return this;
   }

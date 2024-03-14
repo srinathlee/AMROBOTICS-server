@@ -6,12 +6,14 @@ const isAuthorized = require("../middleware/auth");
 
 // Getall products_________________________________________________________________________
 exports.getAllProducts = asyncHandler(async (req, res, next) => {
+  const filter=req.body 
   const resultPerPage = 7;
-  const apiFeature = new apiFeatures(Product.find({},{name:1,category:1,images:1,price:1,rating:1}), req.query)
+  const apiFeature = new apiFeatures(Product.find({},{name:1,category:1,images:1,price:1,rating:1}), filter.filter)
     .search()
     .filter()
     .pagination(resultPerPage);
     const products = await apiFeature.query;
+    console.log(products)
     const productCount = products.length
   res.status(200).json({ success: true, productCount, products });
 });

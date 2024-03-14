@@ -4,7 +4,7 @@ const {getAllProducts,createProduct,updataProduct, deleteProduct,getProduct,crea
 const {isAuthorized,roleAuthorize}=require("../middleware/auth")
 
 
-router.route("/products").get(getAllProducts)
+router.route("/products").post(getAllProducts)
 router.route("/product/new").post(isAuthorized,roleAuthorize("admin"),createProduct)
 router.route("/product/:id").put(isAuthorized,roleAuthorize("admin"),updataProduct)
 .delete(isAuthorized,roleAuthorize("admin"),deleteProduct)

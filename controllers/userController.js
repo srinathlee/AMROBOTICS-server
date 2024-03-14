@@ -149,14 +149,17 @@ exports.userDetails=asyncHandler(async(req,res,next)=>{
 
 // update user details
 exports.profileUpdate=asyncHandler(async(req,res,next)=>{
-  console.log(req.body)
-  const userNewDetails={
-    name:req.body.name,
-    email:req.body.email,
-    number:req.body.number
-
-  }
-  const user=await User.findByIdAndUpdate(req.user.id,userNewDetails,{new:true,runValidators:true,useFindAndModify:false})
+  const{name,email,number,address}=req.body
+ 
+  const user=await User.findById(req.user.id)
+  user.name=name 
+  user.email=email 
+  user.number=number 
+  const newaddress=user.address
+  newaddress.push(address)
+  await user.save()
+  console.log("----")
+  // const user=await User.findByIdAndUpdate(req.user.id,userNewDetails,{new:true,runValidators:true,useFindAndModify:false})
   res.status(201).json({success:true,user})
 })
 

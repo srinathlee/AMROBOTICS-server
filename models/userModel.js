@@ -79,7 +79,7 @@ city:{
     type:String,
     requiredd:true
 },
-pincode:{
+pin:{
     type:Number,
     requiredd:true
 },
