@@ -251,6 +251,15 @@ exports.getWishlist=asyncHandler(async(req,res,next)=>{
 res.status(200).json({message:"wishlistData",success:true,data:wishlistData})
 })
 
+// empty the wishlist_______________________________________
+exports.deleteWishlist=asyncHandler(async(req,res,next)=>{
+  const userId=req.user.id
+  const user=await User.findById(userId)
+  user.wishList=[]
+  user.save({validateBeforeSave:false})
+  res.status(200).json({success:true,message:"Wishlist is empty successfully"})
+})
+
 // add item to cart increase quantity if already present_____________________________________
 exports.AddCartItem=asyncHandler(async(req,res,next)=>{
   const userId=req.user.id
@@ -277,12 +286,13 @@ exports.AddCartItem=asyncHandler(async(req,res,next)=>{
 // remove item from cart _____________________________________
 exports.RemoveCartItem=asyncHandler(async(req,res,next)=>{
   const userId=req.user.id
-  const id=req.body 
+  const {id}=req.params 
+  console.log(id)
   const user=await User.findById(userId)
-  const newCart=id.map((item)=>user.cart.filter((each)=>each.product!=item))
+  const newCart=user.cart.filter((each)=>each.product!=id)         
   user.cart=newCart[0] 
   await user.save({validateBeforeSave:false})
- res.json("newCart")
+ res.status(200).json({success:true,message:"item is removed form cart successfully"})
 })
 
 // get all cart details__________________
@@ -304,7 +314,9 @@ res.status(200).json({success:true,data:cartData})
 // increment cart item quantity________________________________
 exports.updateCartItem=asyncHandler(async(req,res,next)=>{
   const userId=req.user.id
-  const {operation,id}=req.body
+  const {id}=req.params
+  const {operation}=req.body
+  console.log(id,operation)
   console.log(operation)
   const user=await User.findById(userId)
 
@@ -314,9 +326,21 @@ exports.updateCartItem=asyncHandler(async(req,res,next)=>{
   user.cart[isCarted].quantity+=1
   }
   else{
+  if(user.cart[isCarted].quantity<=0)
+  user.cart[isCarted].quantity=0
+  else
   user.cart[isCarted].quantity-=1
   }
   await user.save({validateBeforeSave:false})
-  res.json({success:true,message:"cart item quantity updated successfully"})
+  res.status(200).json({success:true,message:"cart item quantity updated successfully"})
 
+})
+
+// empty the cart________________________________
+exports.deleteCart=asyncHandler(async(req,res,next)=>{
+  const userId=req.user.id
+  const user=await User.findById(userId)
+  user.cart=[]
+  user.save({validateBeforeSave:false})
+  res.status(200).json({success:true,message:"cart is empty successfully"})
 })
