@@ -256,16 +256,15 @@ exports.AddCartItem=asyncHandler(async(req,res,next)=>{
   const userId=req.user.id
   const productId=req.params.id 
   const quantity=req.body.quantity
-  console.log("quantity")
   const user=await User.findById(userId)
   const product=await Product.findById(productId)
-  console.log(quantity,"search product")
+ 
   let cartDetails={
     "product":productId,
     quantity:quantity
-  }
+    }
+
   const isCarted=user.cart.findIndex((each)=>each.product==productId)
-  console.log(isCarted,"iscarted")
   if(isCarted!=-1){
   user.cart[isCarted].quantity+=1
   }
@@ -286,28 +285,6 @@ exports.RemoveCartItem=asyncHandler(async(req,res,next)=>{
  res.json("newCart")
 })
 
-// increment products in cart____________________________________
-// exports.AddCartItem=asyncHandler(async(req,res,next)=>{
-//   const userId=req.user.id
-//   const {quantity}=req.body||1
-//   console.log(quantity)
-//   const productId=req.params.id 
-//   const user=await User.findById(userId)
-//   let cartDetails={
-//     "product":productId,
-//     quantity:quantity
-//   }
-//   const isCarted=user.cart.findIndex((each)=>each.product==productId)
-//   if(isCarted!=-1){
-//   user.cart[isCarted].quantity+=quantity
-//   }
-//   else{
-//   user.cart.push(cartDetails) 
-//   }
-//   await user.save({validateBeforeSave:false})
-//  res.json({success:true,message:"product added to cart successfully"})
-// })
-
 // get all cart details__________________
 exports.getCartDetails=asyncHandler(async(req,res,next)=>{
   const userId=req.user.id
@@ -322,4 +299,24 @@ exports.getCartDetails=asyncHandler(async(req,res,next)=>{
   )
 
 res.status(200).json({success:true,data:cartData})
+})
+
+// increment cart item quantity________________________________
+exports.updateCartItem=asyncHandler(async(req,res,next)=>{
+  const userId=req.user.id
+  const {operation,id}=req.body
+  console.log(operation)
+  const user=await User.findById(userId)
+
+  const isCarted=user.cart.findIndex((each)=>each.product==id)
+  console.log(isCarted,"iscarted")
+  if(operation=="inc"){
+  user.cart[isCarted].quantity+=1
+  }
+  else{
+  user.cart[isCarted].quantity-=1
+  }
+  await user.save({validateBeforeSave:false})
+  res.json({success:true,message:"cart item quantity updated successfully"})
+
 })

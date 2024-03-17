@@ -1,6 +1,6 @@
 const express=require('express')
 const router=express.Router()
-const {register, login,logout,forgotPassword,resetPassword,updatePassword,userDetails,profileUpdate, getAllUsers,getUser,updateUserRole,deleteUser,getWishlist,wishListProduct,RemovewishListProduct,AddCartItem,RemoveCartItem,getCartDetails} =require("../controllers/userController")
+const {register, login,logout,forgotPassword,resetPassword,updatePassword,userDetails,profileUpdate, getAllUsers,getUser,updateUserRole,deleteUser,getWishlist,wishListProduct,RemovewishListProduct,AddCartItem,RemoveCartItem,getCartDetails,updateCartItem} =require("../controllers/userController")
 const {isAuthorized,roleAuthorize}=require("../middleware/auth")
 const upload=require('../middleware/multer')
 
@@ -21,7 +21,7 @@ router.route("/me/wishlist/:id").post(isAuthorized,wishListProduct).delete(isAut
 router.route("/me/wishlist").get(isAuthorized,getWishlist)
 // cart routers____________________
 router.route("/me/cart/:id").post(isAuthorized,AddCartItem)
-router.route("/me/cart").get(isAuthorized,getCartDetails).delete(isAuthorized,RemoveCartItem)
+router.route("/me/cart").get(isAuthorized,getCartDetails).delete(isAuthorized,RemoveCartItem).put(isAuthorized,updateCartItem)
 
 
 module.exports=router
