@@ -7,7 +7,7 @@ const isAuthorized = require("../middleware/auth");
 // Getall products_________________________________________________________________________
 exports.getAllProducts = asyncHandler(async (req, res, next) => {
   const filter=req.body 
-  const resultPerPage = 7;
+  const resultPerPage = 15;
   const apiFeature = new apiFeatures(Product.find({},{name:1,category:1,images:1,price:1,rating:1}), filter.filter)
     .search()
     .filter()
@@ -63,14 +63,18 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 
 // create review and update review ________________________________________________________
 exports.createReview=asyncHandler(async(req,res,next)=>{
-  const {name,comment,rating,productId}=req.body
+  const {comment,rating,productId}=req.body
+//  console.log(comment,rating,productId)
+
   const review={
-    "user":req.user.id,
-    name,
+    user:req.user.id,
+    name:req.user.name,
     comment,
     rating:Number(rating)
   }
+  console.log(req.user.name)
   const product=await Product.findById(productId)
+  // console.log(product)
   // checking weather user already wrote review or not
   const isReviewed=product.reviews.find((rev)=>{
     return (rev.user.toString() ==req.user.id)
