@@ -66,22 +66,35 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
-  address:[
-{country:{
+  addresses:[
+{
+  name:{
     type:String,
-    requiredd:true
+    required:true
+  },
+  email:{
+    type:String,
+    required:true
+  },
+  address:{
+    type:String,
+    required:true
+  },
+  country:{
+    type:String,
+    required:true
 },
 state:{
     type:String,
-    requiredd:true
+    required:true
 },
 city:{
     type:String,
-    requiredd:true
+    required:true
 },
 pin:{
     type:Number,
-    requiredd:true
+    required:true
 },
 mobile:{
     type:Number,

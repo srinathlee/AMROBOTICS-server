@@ -83,7 +83,7 @@ const orderBody=JSON.stringify({
     channel_id: "",
     comment: "Reseller: M/s Goku",
     billing_customer_name: "ravi",
-    billing_last_name: "T",
+    billing_last_name: "T raghu",
     billing_address: "gadwal,kondapally",
     billing_address_2: "near temple",
     billing_city: "Gadwal",

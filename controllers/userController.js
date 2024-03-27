@@ -147,21 +147,51 @@ exports.userDetails=asyncHandler(async(req,res,next)=>{
   res.status(200).send({success:true,user})
 })
 
-// update user details
-exports.profileUpdate=asyncHandler(async(req,res,next)=>{
-  const{name,email,number,address}=req.body
+// // update user details
+// exports.profileUpdate=asyncHandler(async(req,res,next)=>{
+//   const{name,email,number,address}=req.body
+//   console.log(address)
  
-  const user=await User.findById(req.user.id)
-  user.name=name 
-  user.email=email 
-  user.number=number 
-  const newaddress=user.address
-  newaddress.push(address)
-  await user.save()
-  console.log("----")
-  // const user=await User.findByIdAndUpdate(req.user.id,userNewDetails,{new:true,runValidators:true,useFindAndModify:false})
-  res.status(201).json({success:true,user})
-})
+//   const user=await User.findById(req.user.id)
+//   user.name=name
+//   user.email=email
+//   user.number=number
+//   const newaddress=user.addresses
+//   newaddress.push(address)
+//   await user.save()
+//   res.status(201).json({success:true,user})
+// })
+
+
+exports.profileUpdate = asyncHandler(async (req, res, next) => {
+  const { name, email, number, address } = req.body;
+
+  const user = await User.findById(req.user.id);
+
+  if (!name && !email && !number) {
+    // Only update the address if name, email, and number are not provided
+    if (address) {
+      user.addresses.push(address);
+      await user.save();
+      res.status(201).json({ success: true, user });
+    } else {
+      res.status(400).json({ success: false, message: "Address is required." });
+    }
+  } else {
+    // Update name, email, and number along with the address
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.number = number || user.number;
+    if (address) {
+      user.addresses.push(address);
+    }
+    await user.save();
+    res.status(201).json({ success: true, user });
+  }
+});
+
+
+
 
 // get all users---admin
 exports.getAllUsers=asyncHandler(async(req,res,next)=>{
@@ -203,10 +233,12 @@ exports.deleteUser=asyncHandler(async(req,res,next)=>{
 
 // whishlist products________________________________________________________________________
 exports.wishListProduct=asyncHandler(async(req,res,next)=>{
+  console.log("wishlll")
   const productId=req.params.id
   const userId=req.user.id
   let user=await User.findById(userId)
   const wishList=user.wishList 
+  console.log(wishList)
   const itemExist=wishList.find((each)=>each.product==productId)
 
   if(itemExist){
@@ -240,6 +272,8 @@ exports.RemovewishListProduct=asyncHandler(async(req,res,next)=>{
 exports.getWishlist=asyncHandler(async(req,res,next)=>{
   const userId=req.user.id
   const user=await User.findOne({_id:userId},{wishList:1,_id:0});
+  console.log("wishlistData")
+
   const wishlistData = await Promise.all(
     user.wishList.map(async(eachItem)=>{
       const product = await Product.findOne({_id:eachItem.product},{name:1,images:1,price:1,stock:1})
