@@ -147,20 +147,6 @@ exports.userDetails=asyncHandler(async(req,res,next)=>{
   res.status(200).send({success:true,user})
 })
 
-// // update user details
-// exports.profileUpdate=asyncHandler(async(req,res,next)=>{
-//   const{name,email,number,address}=req.body
-//   console.log(address)
- 
-//   const user=await User.findById(req.user.id)
-//   user.name=name
-//   user.email=email
-//   user.number=number
-//   const newaddress=user.addresses
-//   newaddress.push(address)
-//   await user.save()
-//   res.status(201).json({success:true,user})
-// })
 
 
 exports.profileUpdate = asyncHandler(async (req, res, next) => {

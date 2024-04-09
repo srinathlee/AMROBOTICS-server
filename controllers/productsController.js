@@ -20,6 +20,7 @@ exports.getAllProducts = asyncHandler(async (req, res, next) => {
 
 // get single product______________________________________________________________________
 exports.getProduct = asyncHandler(async (req, res, next) => {
+  console.log("product")
   const product = await Product.findById(req.params.id);
   if (!product) {
     return next(new errorHandler("product not found", 505));
@@ -124,3 +125,22 @@ exports.deleteReview=asyncHandler(async(req,res,next)=>{
   await product.save({validateBeforeSave:false})
   res.status(200).json({success:true,message:"review deleted successfully"})
 })
+
+
+// get category products appi_______________________________________________________________
+
+exports.getSpecificCategoryProducts = asyncHandler(async (req, res, next) => {
+  const category = req.body.category;
+  console.log("specific category", category);
+
+  // Use regex to make the category value case-sensitive
+  const categoryRegex = new RegExp('^' + category + '$', 'i');
+  const products = await Product.find({ category: categoryRegex });
+
+  // You can uncomment and modify this block if you want to handle cases where no products are found
+  if (!products || products.length === 0) {
+    return next(new errorHandler("No products with category found", 404));
+  }
+
+  res.status(200).json({ success: true, products });
+});

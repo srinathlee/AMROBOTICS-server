@@ -6,11 +6,13 @@ const isAuthorized = require("../middleware/auth");
 const payment=require("../server")
 const randomnum=require("../utils/randomgenerator")
 const axios =require('axios')
+const crypto = require('crypto');
 
 
 
 
-// payment initiation
+
+// payment initiation____________________________________________
 exports.initPayment=asyncHandler(async(req,res,next)=>{
    const totalPrice=req.body.totalPrice
    const pay_res=await payment.instance.orders.create({
@@ -20,13 +22,18 @@ exports.initPayment=asyncHandler(async(req,res,next)=>{
     res.status(200).json({success:true,message:"payment initiated",paymentId:pay_res})
   })
 
-//   payment conformation
+//   payment conformation__________________________________________
 exports.paymentConform=asyncHandler(async(req,res,next)=>{
-    console.log(req.body)
-    const { razorpay_payment_id} = req.body.response;
-    console.log(razorpay_payment_id)
-    if(razorpay_payment_id){
-    req.razorpay_payment_id=razorpay_payment_id
+    const {paymentResponse,selectAddress,paymode}=req.body
+     const { razorpay_payment_id,razorpay_signature,razorpay_order_id} = paymentResponse;
+     
+     const text = `${razorpay_order_id}|${razorpay_payment_id}`;
+     const generatedsignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY).update(text).digest('hex');
+
+    if(generatedsignature==razorpay_signature){
+    req.paymentResponse=paymentResponse;
+    req.selectAddress=selectAddress;
+    req.paymode=paymode;
     next()
     }
 })
@@ -34,64 +41,26 @@ exports.paymentConform=asyncHandler(async(req,res,next)=>{
 // order creation
 exports.createOrder=asyncHandler(async(req,res,next)=>{
      const randomId=randomnum()
-     // const{shippingInfo,orderItems,itemsPrice,taxPrice,shippingPrice,totalPrice,paymentInfo}=req.body;
-    // we will send only about for payment initiation
+     const {paymentResponse,selectAddress,paymode}=req.body
+     const {name,email,mobile,state,city,address,country,pin}=selectAddress;
+     const {razorpay_payment_id,razorpay_order_id,razorpay_signature}=paymentResponse;
 
-//     const shippingInfo={
-//     address:"bijwaram",
-//     country:"india",
-//     state:"talangana",
-//     city:"gadwal",
-//     mobile:9988776655
-//    }
-
-//   const orderItems=[{
-//    name:"product1",
-//    quantity:1,
-//    images:"sampleimage",
-//    price:"122",
-//    product:"65561daaa7406f78570f5e18"
-//    }]
-
-//    const itemsPrice=100
-//    const taxPrice=10
-//    const shippingPrice=20
-//    const totalPrice=130
-//    const orderStatus="processing.."
-//    const userId="65959e5e59de3858540259ec"
-
-
-//    const order=await Order.create({
-//         shippingInfo,
-//         orderItems,
-//         itemsPrice,
-//         taxPrice,
-//         shippingPrice,
-//         totalPrice,
-//         user:userId
-//     })
-
-
-// ____________________________________________________________
-
-
-console.log(randomId)
-const orderBody=JSON.stringify({
+const orderBody={
     order_id: randomId,
     order_date: "2024-02-24 11:11",
     pickup_location: "Primary",
     channel_id: "",
     comment: "Reseller: M/s Goku",
-    billing_customer_name: "ravi",
-    billing_last_name: "T raghu",
-    billing_address: "gadwal,kondapally",
-    billing_address_2: "near temple",
-    billing_city: "Gadwal",
-    billing_pincode: "509132",
-    billing_state: "telangana",
-    billing_country: "India",
-    billing_email: "ravi@uzumaki.com",
-    billing_phone: "9876543210",
+    billing_customer_name: name,
+    billing_last_name: "",
+    billing_address:address,
+    billing_address_2: "",
+    billing_city:city,
+    billing_pincode:pin,
+    billing_state:state,
+    billing_country:country,
+    billing_email:email,
+    billing_phone:mobile,
     shipping_is_billing: true,
     shipping_customer_name: "",
     shipping_last_name: "",
@@ -114,7 +83,7 @@ const orderBody=JSON.stringify({
         hsn: 441122
       }
     ],
-    payment_method: "Prepaid",
+    payment_method:paymode,
     shipping_charges: 0,
     giftwrap_charges: 0,
     transaction_charges: 0,
@@ -124,8 +93,7 @@ const orderBody=JSON.stringify({
     breadth: 15,
     height: 20,
     weight: 2.5
-  })
-
+  }
 
 
    const config = {
@@ -134,18 +102,19 @@ const orderBody=JSON.stringify({
     url: "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
     headers: { 
       'Content-Type': "application/json", 
-      'Authorization': "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaXYyLnNoaXByb2NrZXQuaW4vdjEvZXh0ZXJuYWwvYXV0aC9sb2dpbiIsImlhdCI6MTcwODA2NTMyOSwiZXhwIjoxNzA4OTI5MzI5LCJuYmYiOjE3MDgwNjUzMjksImp0aSI6InBYd0J2UGE4dWxReTBhZlkiLCJzdWIiOjQ0NDA0NjQsInBydiI6IjA1YmI2NjBmNjdjYWM3NDVmN2IzZGExZWVmMTk3MTk1YTIxMWU2ZDkiLCJjaWQiOjQyNTA4NDd9.pRWI69r5Sa7nYEtyxAlURyf-tqfqXXf2UbFipHv3m4Q"
+      'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQzNzYzODQsInNvdXJjZSI6InNyLWF1dGgtaW50IiwiZXhwIjoxNzEyNTU4ODI4LCJqdGkiOiJaTUVwb3RLMFFFazJMRkJ6IiwiaWF0IjoxNzExNjk0ODI4LCJpc3MiOiJodHRwczovL3NyLWF1dGguc2hpcHJvY2tldC5pbi9hdXRob3JpemUvdXNlciIsIm5iZiI6MTcxMTY5NDgyOCwiY2lkIjo0MjUwODQ3LCJ0YyI6MzYwLCJ2ZXJib3NlIjpmYWxzZSwidmVuZG9yX2lkIjowLCJ2ZW5kb3JfY29kZSI6IiJ9.Hg8AeNZYsNh5GLTKNTplcYX1yR0tcCrHtIBJdr-f9XU"
     },
     data :orderBody
   };
 
+
   axios(config)
   .then(function (response) {
-    // console.log(response.data)
   res.json({response:response.data})
   })
   .catch(function (error) {
-    console.log(error);
+    console.log(error.response.data.errors)
+    res.json(error.response.data.errors);
   });
 
 
