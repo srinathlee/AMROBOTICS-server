@@ -17,19 +17,11 @@ const ProductSchema = new mongoose.Schema({
     type: Number,
     required: [true, "please enter product rating"],
   },
-  images: [
-    {
-      public_id: {
-        type: String,
-        required: true,
-      },
-
-      url: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
+  images: {
+    type: [String], 
+    required: true, 
+    default: [] 
+  },
   category: {
     type: String,
     required: [true, "please enter product category"],
