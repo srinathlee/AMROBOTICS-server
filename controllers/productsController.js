@@ -21,6 +21,7 @@ exports.getAllProducts = asyncHandler(async (req, res, next) => {
 
 exports.getAllHomeProduts=asyncHandler(async(req,res,next)=>{
    const products=await Product.find()
+   console.log(products)
    const productCount = products.length
   res.status(200).json({ success: true, productCount, products });  
 })
