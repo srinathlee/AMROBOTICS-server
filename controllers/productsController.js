@@ -3,6 +3,8 @@ const errorHandler = require("../utils/errorHandler");
 const asyncHandler = require("../middleware/asynchandler");
 const apiFeatures = require("../utils/apiFeatures");
 const isAuthorized = require("../middleware/auth");
+const cloudinary=require("../utils/cloudinary")
+const fs=require("fs");
 
 
 // Getall products_________________________________________________________________________ 
@@ -55,6 +57,15 @@ exports.getProduct = asyncHandler(async (req, res, next) => {
 // Create product ---Admin_________________________________________________________________
 exports.createProduct = asyncHandler(async (req, res, next) => {
   req.body.createdBy = req.user.id;
+    // checking if file present in request
+  if(req.file==undefined){
+    return next(new errorHandler("provide avatar", 401));
+    }
+  // uploading into cloudinary
+  const uploaded=await cloudinary(req.file)
+  const avatar={public_id:uploaded.public_id,url:uploaded.url}
+  req.body.images=[avatar]
+
   const product = await Product.create(req.body);
   res.status(201).json({ success: true, product });
 });

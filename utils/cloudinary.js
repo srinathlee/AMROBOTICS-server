@@ -9,8 +9,6 @@ cloudinary.config({
   });
 
   const uploadFile=async(files)=>{
-    console.log(files)
-
     try{
       
       if(!files)

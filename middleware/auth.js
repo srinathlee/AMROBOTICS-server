@@ -5,7 +5,7 @@ const asyncHandler=require("../middleware/asynchandler")
 
 
 exports.isAuthorized=asyncHandler(async(req,res,next)=>{
-//    const {jwtToken}=req.cookies
+console.log("authorization")
    const headers=req.headers['authorization']
    if(!headers){
     return next(new errorHandler("no jwtToken provided unauthorised ",401))
@@ -22,6 +22,7 @@ exports.isAuthorized=asyncHandler(async(req,res,next)=>{
 
 
 exports.roleAuthorize=(...role)=>{
+    console.log('role auth')
     return (req,res,next)=>{
         const user=req.user.role
         if(!role.includes(user)){
