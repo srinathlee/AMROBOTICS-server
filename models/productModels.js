@@ -14,8 +14,11 @@ const ProductSchema = new mongoose.Schema({
     required: [true, "please enter product Price"],
   },
   rating: {
-    type: Number,
-    required: [true, "please enter product rating"],
+    type: Number
+  },
+  insideBox:{
+    type: String,
+    required: [true, "please enter product description"],
   },
   images: {
     type: [String], 
