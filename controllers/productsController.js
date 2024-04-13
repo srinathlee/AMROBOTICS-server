@@ -71,7 +71,7 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
 });
 
 // Update product ---Admin_________________________________________________________________
-exports.updataProduct = asyncHandler(async (req, res, next) => {
+exports.updateProduct = asyncHandler(async (req, res, next) => {
   let product = await Product.findById(req.params.id);
   if (!product) {
     return next(new errorHandler("product not found", 505));
