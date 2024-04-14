@@ -30,7 +30,7 @@ exports.getAllProducts = asyncHandler(async (req, res, next) => {
     .filter()
     .pagination(resultPerPage);
     const products = await apiFeature.query;
-    console.log(products)
+    // console.log(products)
     const productCount = products.length
   res.status(200).json({ success: true, productCount, products });
 });
@@ -50,6 +50,7 @@ exports.getProduct = asyncHandler(async (req, res, next) => {
   if (!product) {
     return next(new errorHandler("product not found", 505));
   }
+  console.log(product)
 
   res.status(200).json({ success: true, product });
   });

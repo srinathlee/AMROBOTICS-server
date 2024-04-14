@@ -259,11 +259,15 @@ exports.getWishlist=asyncHandler(async(req,res,next)=>{
   const userId=req.user.id
   const user=await User.findOne({_id:userId},{wishList:1,_id:0});
   console.log("wishlistData")
+  console.log(user)
 
   const wishlistData = await Promise.all(
     user.wishList.map(async(eachItem)=>{
+      console.log(eachItem)
       const product = await Product.findOne({_id:eachItem.product},{name:1,images:1,price:1,stock:1})
+      // console.log(product)
       const item = {name:product.name,images:product.images,price:product.price,id:product.id,stock:product.stock}
+      // console.log(item)
       return item
     })
   )
