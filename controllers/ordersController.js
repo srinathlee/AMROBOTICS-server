@@ -14,9 +14,20 @@ const crypto = require('crypto');
 
 // payment initiation____________________________________________
 exports.initPayment=asyncHandler(async(req,res,next)=>{
-   const totalPrice=req.body.totalPrice
+   let PriceCal=0
+   const {itemIds,cartAmount}=req.body
+
+   await Promise.all(itemIds.map(async (cartItem) => {
+       const product = await Product.findOne({ _id: cartItem.id });
+       const productPrice = product.price;
+       const productQuantity = cartItem.quantity;
+       PriceCal = PriceCal + (productPrice * productQuantity);
+   }))
+   if(cartAmount!=PriceCal)
+    return next(new errorHandler("error in price at frontend and backend",400))
+
    const pay_res=await payment.instance.orders.create({
-        amount:totalPrice*100,
+        amount:PriceCal*100,
         currency: "INR"
         })
     res.status(200).json({success:true,message:"payment initiated",paymentId:pay_res})
@@ -29,7 +40,7 @@ exports.paymentConform=asyncHandler(async(req,res,next)=>{
      
      const text = `${razorpay_order_id}|${razorpay_payment_id}`;
      const generatedsignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY).update(text).digest('hex');
-
+    console.log(generatedsignature,razorpay_signature,"_________checking")
     if(generatedsignature==razorpay_signature){
     req.paymentResponse=paymentResponse;
     req.selectAddress=selectAddress;
@@ -40,6 +51,7 @@ exports.paymentConform=asyncHandler(async(req,res,next)=>{
 
 // order creation
 exports.createOrder=asyncHandler(async(req,res,next)=>{
+  console.log("entered to order______________")
      const randomId=randomnum()
      const {paymentResponse,selectAddress,paymode}=req.body
      const {name,email,mobile,state,city,address,country,pin}=selectAddress;
@@ -95,30 +107,26 @@ const orderBody={
     weight: 2.5
   }
 
-
    const config = {
     method: "post",
     maxBodyLength: Infinity,
     url: "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
     headers: { 
       'Content-Type': "application/json", 
-      'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQzNzYzODQsInNvdXJjZSI6InNyLWF1dGgtaW50IiwiZXhwIjoxNzEyNTU4ODI4LCJqdGkiOiJaTUVwb3RLMFFFazJMRkJ6IiwiaWF0IjoxNzExNjk0ODI4LCJpc3MiOiJodHRwczovL3NyLWF1dGguc2hpcHJvY2tldC5pbi9hdXRob3JpemUvdXNlciIsIm5iZiI6MTcxMTY5NDgyOCwiY2lkIjo0MjUwODQ3LCJ0YyI6MzYwLCJ2ZXJib3NlIjpmYWxzZSwidmVuZG9yX2lkIjowLCJ2ZW5kb3JfY29kZSI6IiJ9.Hg8AeNZYsNh5GLTKNTplcYX1yR0tcCrHtIBJdr-f9XU"
+      'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQzNzYzODQsInNvdXJjZSI6InNyLWF1dGgtaW50IiwiZXhwIjoxNzE0MzI1NDgxLCJqdGkiOiJ2RXVHV0VHZ1Q3MmxMRGZWIiwiaWF0IjoxNzEzNDYxNDgxLCJpc3MiOiJodHRwczovL3NyLWF1dGguc2hpcHJvY2tldC5pbi9hdXRob3JpemUvdXNlciIsIm5iZiI6MTcxMzQ2MTQ4MSwiY2lkIjo0MjUwODQ3LCJ0YyI6MzYwLCJ2ZXJib3NlIjpmYWxzZSwidmVuZG9yX2lkIjowLCJ2ZW5kb3JfY29kZSI6IiJ9.4IotMjw-wJg9UI77ckYT3wHBoSzPU2QrUSGzMAD7doo"
     },
     data :orderBody
   };
 
 
-  axios(config)
-  .then(function (response) {
-  res.json({response:response.data})
+  axios(config).then(function (response){
+    
+  res.json({response:response.data,razorpay_payment_id})
   })
   .catch(function (error) {
-    console.log(error.response.data.errors)
+    console.log(error.response.data,"this is error")
     res.json(error.response.data.errors);
-  });
-
-
- 
+  }); 
 })
 
 
