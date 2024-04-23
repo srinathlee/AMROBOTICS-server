@@ -12,7 +12,6 @@ exports.getAllProductsAdmin = asyncHandler(async (req, res, next) => {
   const filter=req.body 
   const apiFeature = new apiFeatures(Product.find({},{name:1,category:1,images:1,price:1,rating:1,description:1}), filter.filter)
     const products = await apiFeature.query;
-    console.log(products)
     const productCount = products.length
   res.status(200).json({ success: true, productCount, products });
 });
@@ -30,7 +29,6 @@ exports.getAllProducts = asyncHandler(async (req, res, next) => {
     .filter()
     .pagination(resultPerPage);
     const products = await apiFeature.query;
-    // console.log(products)
     const productCount = products.length
   res.status(200).json({ success: true, productCount, products });
 });
@@ -38,20 +36,16 @@ exports.getAllProducts = asyncHandler(async (req, res, next) => {
 
 exports.getAllHomeProduts=asyncHandler(async(req,res,next)=>{
    const products=await Product.find()
-   console.log(products)
    const productCount = products.length
   res.status(200).json({ success: true, productCount, products });  
 })
 
 // get single product______________________________________________________________________
 exports.getProduct = asyncHandler(async (req, res, next) => {
-  console.log("product")
   const product = await Product.findById(req.params.id);
   if (!product) {
     return next(new errorHandler("product not found", 505));
   }
-  console.log(product)
-
   res.status(200).json({ success: true, product });
   });
 
@@ -100,17 +94,13 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
 // create review and update review ________________________________________________________
 exports.createReview=asyncHandler(async(req,res,next)=>{
   const {comment,rating,productId}=req.body
-//  console.log(comment,rating,productId)
-
   const review={
     user:req.user.id,
     name:req.user.name,
     comment,
     rating:Number(rating)
   }
-  console.log(req.user.name)
   const product=await Product.findById(productId)
-  // console.log(product)
   // checking weather user already wrote review or not
   const isReviewed=product.reviews.find((rev)=>{
     return (rev.user.toString() ==req.user.id)

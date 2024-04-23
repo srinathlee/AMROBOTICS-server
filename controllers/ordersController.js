@@ -56,13 +56,14 @@ exports.createOrder=asyncHandler(async(req,res,next)=>{
      const {paymentResponse,selectAddress,paymode}=req.body
      const {name,email,mobile,state,city,address,country,pin}=selectAddress;
      const {razorpay_payment_id,razorpay_order_id,razorpay_signature}=paymentResponse;
-
+const dat= new Date(Date.now()).toISOString()
+console.log(dat)
 const orderBody={
     order_id: randomId,
     order_date: "2024-02-24 11:11",
     pickup_location: "Primary",
     channel_id: "",
-    comment: "Reseller: M/s Goku",
+    comment: "",
     billing_customer_name: name,
     billing_last_name: "",
     billing_address:address,
@@ -88,6 +89,15 @@ const orderBody={
       {
         name: "shirt",
         sku: "chakra123",
+        units: 10,
+        selling_price: "900",
+        discount: "",
+        tax: "",
+        hsn: 441122
+      },
+      {
+        name: "shirt",
+        sku: "chakra1234",
         units: 10,
         selling_price: "900",
         discount: "",
@@ -120,7 +130,7 @@ const orderBody={
 
 
   axios(config).then(function (response){
-    
+    console.log(response)
   res.json({response:response.data,razorpay_payment_id})
   })
   .catch(function (error) {
