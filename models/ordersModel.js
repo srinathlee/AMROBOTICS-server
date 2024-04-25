@@ -1,7 +1,25 @@
 const mongoose=require("mongoose")
+const { default: isEmail } = require("validator/lib/isEmail")
 
 const order=mongoose.Schema({
+    order_id:{
+        type:String,
+        required:true
+    },
+    channel_order_id:{
+        type:String,
+        required:true
+    },
+    orderStatus:{
+        type:String,
+        required:true,
+        default:"processing.."
+    },
     shippingInfo:{
+        name:{
+            type:String,
+            required:true
+        },
         address:{
             type:String,
             required:true
@@ -18,12 +36,16 @@ const order=mongoose.Schema({
             type:String,
             requiredd:true
         },
-        pincode:{
+        pin:{
             type:Number,
             requiredd:true
         },
         mobile:{
             type:Number,
+            required:true
+        },
+        email:{
+            type:String,
             required:true
         }
     },
@@ -33,7 +55,7 @@ const order=mongoose.Schema({
                 type:String,
                 required:true
             },
-            quantity:{
+            units:{
                 type:Number,
                 required:true,
                 default:1
@@ -42,14 +64,18 @@ const order=mongoose.Schema({
                 type:String,
                 required:true
             },
-            price:{
+            selling_price:{
                 type:String,
                 required:true
             },
-            product:{
+            id:{
                type:mongoose.Schema.ObjectId,
                ref:"Product",
                required:true 
+            },
+            sku:{
+                type:String,
+                required:true
             }
         }
     ],
@@ -58,20 +84,13 @@ const order=mongoose.Schema({
         ref:"User",
         required:true
     },
-    paymentInfo:{
-        id:{
-            type:String,
-            // required:true
-        },
-        status:{
-            type:String,
-            // required:true
-        }
+    payment_id:{
+            type:String
     },
-    paidAt:{
-        type:Date,
-        // required:true
-    },
+    // paidAt:{
+    //     type:Date,
+    //     // required:true
+    // },
     itemsPrice:{
         type:Number,
         default:0
@@ -88,11 +107,11 @@ const order=mongoose.Schema({
         type:Number,
         default:0
     },
-    orderStatus:{
-        type:String,
-        required:true,
-        default:"processing.."
+    paymode:{
+      type:String,
+      required:true
     },
+  
     deliveredAt:Date,
     createdAt:{
         type:Date,

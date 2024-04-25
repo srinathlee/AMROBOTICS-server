@@ -25,6 +25,11 @@ const ProductSchema = new mongoose.Schema({
     required: true, 
     default: [] 
   },
+  sku:{
+  type:String,
+  required:[true,"please sku for the product"],
+  unique:true
+  },
   category: {
     type: String,
     required: [true, "please enter product category"],

@@ -61,7 +61,9 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
   // const avatar={public_id:uploaded.public_id,url:uploaded.url}
   // req.body.images=[avatar]
 
+  console.log(req.body)
   const product = await Product.create(req.body);
+  console.log(product)
   res.status(201).json({ success: true, product });
 });
 
