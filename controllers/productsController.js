@@ -23,8 +23,9 @@ exports.getAllProductsAdmin = asyncHandler(async (req, res, next) => {
 // Getall products_________________________________________________________________________ 
 exports.getAllProducts = asyncHandler(async (req, res, next) => {
   const filter=req.body 
+  // const filter=req.query
   const resultPerPage = 15;
-  const apiFeature = new apiFeatures(Product.find({},{name:1,category:1,images:1,price:1,rating:1}), filter.filter)
+  const apiFeature = new apiFeatures(Product.find({},{name:1,category:1,images:1,price:1,rating:1,createdat:1}), filter.filter)
     .search()
     .filter()
     .pagination(resultPerPage);
