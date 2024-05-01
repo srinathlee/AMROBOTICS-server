@@ -17,8 +17,11 @@ const ProductSchema = new mongoose.Schema({
     type: Number
   },
   insideBox:{
-    type: String,
+    type: [String],
     required: [true, "please enter product description"],
+  },
+  specifications:{
+    type: [String]
   },
   images: {
     type: [String], 

@@ -18,7 +18,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   console.log(address)
   // checking if file present in request
   // if(req.file==undefined){
-  //   return next(new errorHandler("provide avatar", 401));
+  //   return next(new errorHandler("provide avatar", 401));~
   //   }
   // uploading into cloudinary
   // const uploaded=await cloudinary(req.file)
