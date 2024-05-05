@@ -23,6 +23,7 @@ exports.initPayment=asyncHandler(async(req,res,next)=>{
        const productQuantity = cartItem.quantity;
        PriceCal = PriceCal + (productPrice * productQuantity);
    }))
+   console.log(cartAmount,PriceCal)
    if(cartAmount!=PriceCal)
     return next(new errorHandler("error in price at frontend and backend",400))
 
