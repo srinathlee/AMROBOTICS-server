@@ -219,7 +219,6 @@ exports.deleteUser=asyncHandler(async(req,res,next)=>{
 
 // whishlist products________________________________________________________________________
 exports.wishListProduct=asyncHandler(async(req,res,next)=>{
-  console.log("wishlll")
   const productId=req.params.id
   const userId=req.user.id
   let user=await User.findById(userId)
@@ -231,14 +230,14 @@ exports.wishListProduct=asyncHandler(async(req,res,next)=>{
   const newWishlist=wishList.filter((each)=>each.product!=productId)
   user.wishList=newWishlist 
   await user.save({validateBeforeSave:false})
-  return res.status(200).json({success:true,message:"Product removed from Wishlist successfully"})
+  return res.status(200).json({success:true,message:"Product removed from Wishlist"})
     // return next(new errorHandler(`Product with ${productId} already wishlisted`),400) 
   }
   wishList.push({"product":productId})
   console.log(wishList)
   user.wishList=wishList
   await user.save({validateBeforeSave:false})
-  return res.status(200).json({success:true,message:"Product wishlisted successfully"})
+  return res.status(200).json({success:true,message:"Product added to Wishlist"})
 })
 
 // remove product form wishlist______________________________________________________________

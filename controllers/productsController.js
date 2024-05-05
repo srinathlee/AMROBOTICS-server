@@ -44,10 +44,12 @@ exports.getAllHomeProduts=asyncHandler(async(req,res,next)=>{
 // get single product______________________________________________________________________
 exports.getProduct = asyncHandler(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
+  const similarproducts=await Product.find().limit(4);
+  console.log(similarproducts)
   if (!product) {
     return next(new errorHandler("product not found", 505));
   }
-  res.status(200).json({ success: true, product });
+  res.status(200).json({ success: true, product,similarproducts});
   });
 
 // Create product ---Admin_________________________________________________________________
