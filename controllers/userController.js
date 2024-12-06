@@ -349,8 +349,8 @@ exports.updateCartItem=asyncHandler(async(req,res,next)=>{
   user.cart[isCarted].quantity+=1
   }
   else{
-  if(user.cart[isCarted].quantity<=0)
-  user.cart[isCarted].quantity=0
+  if(user.cart[isCarted].quantity<=1)
+  user.cart[isCarted].quantity=1
   else
   user.cart[isCarted].quantity-=1
   }

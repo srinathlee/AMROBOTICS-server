@@ -22,11 +22,12 @@ cloudinary.config({
   api_key:process.env.cloud_api_key, 
   api_secret:process.env.cloud_api_secret 
 });
+console.log(process.env.RAZORPAY_ID,process.env.RAZORPAY_KEY)
 
 
 // initiating razorpay instance
+console.log(process.env.RAZORPAY_ID,process.env.RAZORPAY_KEY)
 exports.instance = new Razorpay({ key_id:process.env.RAZORPAY_ID,key_secret:process.env.RAZORPAY_KEY})
-
 
 // database connection
 connectDatabase();

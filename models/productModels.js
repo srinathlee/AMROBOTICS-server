@@ -66,6 +66,11 @@ const ProductSchema = new mongoose.Schema({
       },
     },
   ],
+  recomendations:[{
+    type:mongoose.Schema.ObjectId,
+    ref:"Blog"
+  }],
+
   noOfReviews: {
     type: Number,
     default: 0,

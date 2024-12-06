@@ -7,6 +7,7 @@ const payment=require("../server")
 const randomnum=require("../utils/randomgenerator")
 const axios =require('axios')
 const crypto = require('crypto');
+const { error } = require("console");
 
 
 
@@ -17,21 +18,28 @@ exports.initPayment=asyncHandler(async(req,res,next)=>{
    let PriceCal=0
    const {itemIds,cartAmount}=req.body
 
-   await Promise.all(itemIds.map(async (cartItem) => {
-       const product = await Product.findOne({ _id: cartItem.id });
-       const productPrice = product.price;
-       const productQuantity = cartItem.quantity;
-       PriceCal = PriceCal + (productPrice * productQuantity);
-   }))
-   console.log(cartAmount,PriceCal)
-   if(cartAmount!=PriceCal)
-    return next(new errorHandler("error in price at frontend and backend",400))
+try{
+  await Promise.all(itemIds.map(async (cartItem) => {
+    const product = await Product.findOne({ _id: cartItem.id });
+    const productPrice = product.price;
+    const productQuantity = cartItem.quantity;
+    PriceCal = PriceCal + (productPrice * productQuantity);
+}))
+if(cartAmount!=PriceCal)
+ return next(new errorHandler("error in price at frontend and backend",400))
 
-   const pay_res=await payment.instance.orders.create({
-        amount:PriceCal*100,
-        currency: "INR"
-        })
-    res.status(200).json({success:true,message:"payment initiated",paymentId:pay_res})
+const pay_res=await payment.instance.orders.create({
+     amount:PriceCal*100,
+     currency: "INR"
+     })
+ res.status(200).json({success:true,message:"payment initiated",paymentId:pay_res})
+  }
+
+  catch(e){
+    console.log(e,"payment error")
+ res.status(e.statusCode).json({success:false,message:error.description})
+
+  }
   })
 
 //   payment conformation__________________________________________
@@ -115,7 +123,7 @@ exports.createOrder=asyncHandler(async(req,res,next)=>{
     url: "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
     headers: { 
       'Content-Type': "application/json", 
-      'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQzNzYzODQsInNvdXJjZSI6InNyLWF1dGgtaW50IiwiZXhwIjoxNzE1NDExMDYzLCJqdGkiOiJsOWMyZVhBR1dVVkxIeUxYIiwiaWF0IjoxNzE0NTQ3MDYzLCJpc3MiOiJodHRwczovL3NyLWF1dGguc2hpcHJvY2tldC5pbi9hdXRob3JpemUvdXNlciIsIm5iZiI6MTcxNDU0NzA2MywiY2lkIjo0MjUwODQ3LCJ0YyI6MzYwLCJ2ZXJib3NlIjpmYWxzZSwidmVuZG9yX2lkIjowLCJ2ZW5kb3JfY29kZSI6IiJ9.wf-0hae0DBxzW5zCCioLb0Trac4x5LajsEpFDMEJ4pI"
+      'Authorization':`Bearer ${process.env.shiprocketAuth}`
     },
     data :orderBody
   };
@@ -211,7 +219,7 @@ exports.createCodOrder=asyncHandler(async(req,res,next)=>{
       url: "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
       headers: { 
         'Content-Type': "application/json", 
-        'Authorization': "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQzNzYzODQsInNvdXJjZSI6InNyLWF1dGgtaW50IiwiZXhwIjoxNzE1NDExMDYzLCJqdGkiOiJsOWMyZVhBR1dVVkxIeUxYIiwiaWF0IjoxNzE0NTQ3MDYzLCJpc3MiOiJodHRwczovL3NyLWF1dGguc2hpcHJvY2tldC5pbi9hdXRob3JpemUvdXNlciIsIm5iZiI6MTcxNDU0NzA2MywiY2lkIjo0MjUwODQ3LCJ0YyI6MzYwLCJ2ZXJib3NlIjpmYWxzZSwidmVuZG9yX2lkIjowLCJ2ZW5kb3JfY29kZSI6IiJ9.wf-0hae0DBxzW5zCCioLb0Trac4x5LajsEpFDMEJ4pI"
+        'Authorization': `Bearer ${process.env.shiprocketAuth}`
       },
       data :orderBody
     };
